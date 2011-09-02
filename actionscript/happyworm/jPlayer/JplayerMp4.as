@@ -144,7 +144,7 @@ package happyworm.jPlayer {
 					this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "NetStream.Play.Stop: getDuration() - getCurrentTime() = " + (getDuration() - getCurrentTime())));
 
 					// Check if media is at the end (or close) otherwise this was due to download bandwidth stopping playback. ie., Download is not fast enough.
-					if(Math.abs(getDuration() - getCurrentTime()) < 150) { // Testing found 150ms worked best for M4A files, where playHead(99.9) caused a stuck state due to firing with ~116ms left to play.
+					if(Math.abs(getDuration() - getCurrentTime()) < 1000) { // Using 1000ms to be extra safe, testing found that for M4A files, playHead(99.9) caused a stuck state due to firing with up to 186ms left to play.
 						endedEvent();
 					}
 					break;
