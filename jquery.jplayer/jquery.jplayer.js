@@ -1944,7 +1944,7 @@
 		},
 		_html_clearMedia: function() {
 			if(this.htmlElement.media) {
-				this.htmlElement.media.src = "";
+				this.htmlElement.media.src = "about:blank";
 				this.htmlElement.media.load(); // Stops an old, "in progress" download from continuing the download. Triggers the loadstart, error and emptied events, due to the empty src. Also an abort event if a download was in progress.
 			}
 		},
