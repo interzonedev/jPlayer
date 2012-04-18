@@ -1,4 +1,4 @@
-﻿/*
+/*
  * jPlayer Plugin for jQuery JavaScript Library
  * http://www.happyworm.com/jquery/jplayer
  *
@@ -8,8 +8,8 @@
  *  - http://www.gnu.org/copyleft/gpl.html
  *
  * Author: Mark J Panaghiston
- * Version: 2.1.0
- * Date: 1st September 2011
+ * Version: 2.1.2
+ * Date: 12th April 2012
  *
  * FlashVars expected: (AS3 property of: loaderInfo.parameters)
  *	id: 	(URL Encoded: String) Id of jPlayer instance
@@ -38,6 +38,9 @@ package {
 	import flash.display.StageAlign;
 	import flash.display.StageScaleMode;
 	import flash.events.Event;
+	import flash.net.LocalConnection;
+	import flash.events.StatusEvent;
+
 	import flash.events.MouseEvent;
 
 	import flash.ui.ContextMenu;
@@ -45,6 +48,7 @@ package {
 	import flash.events.ContextMenuEvent;
 	import flash.net.URLRequest;
 	import flash.net.navigateToURL;
+	import flash.media.Video;
 
 	public class Jplayer extends Sprite {
 		private var jQuery:String;
@@ -57,35 +61,57 @@ package {
 		private var myMp3Player:JplayerMp3;
 		private var myMp4Player:JplayerMp4;
 
+		private var myRtmpPlayer:JplayerRtmp;
+		
+		private var isRtmp:Boolean = false;
+		private var isMp4:Boolean = false;
+
 		private var isMp3:Boolean = false;
 		private var isVideo:Boolean = false;
 
+		private var securityIssue:Boolean = false; // When SWF parameters contain illegal characters
+		private var directAccess:Boolean = false; // When SWF visited directly with no parameters
+
 		private var txLog:TextField;
 		private var debug:Boolean = false; // Set debug to false for release compile!
+		private var localAIRDebug:Boolean = false; // This is autodetermined by AIR app - leave false!
 
+		private var traceOut:TraceOut;
+		//private var outgoing_lc = new LocalConnection ();
 		public function Jplayer() {
+
 			flash.system.Security.allowDomain("*");
+			traceOut = new TraceOut();
 
-			jQuery = loaderInfo.parameters.jQuery + "('#" + loaderInfo.parameters.id + "').jPlayer";
-			commonStatus.volume = Number(loaderInfo.parameters.vol);
-			commonStatus.muted = loaderInfo.parameters.muted == "true";
+			// Fix to the security exploit reported by Jason Calvert http://appsec.ws/
+			checkFlashVars(loaderInfo.parameters);
 
-			stage.scaleMode = StageScaleMode.NO_SCALE;
-			stage.align = StageAlign.TOP_LEFT;
-			stage.addEventListener(Event.RESIZE, resizeHandler);
-			stage.addEventListener(MouseEvent.CLICK, clickHandler);
+			if(!securityIssue) {
+				jQuery = loaderInfo.parameters.jQuery + "('#" + loaderInfo.parameters.id + "').jPlayer";
+				commonStatus.volume = Number(loaderInfo.parameters.vol);
+				commonStatus.muted = loaderInfo.parameters.muted == "true";
 
-			var initialVolume:Number = commonStatus.volume;
-			if(commonStatus.muted) {
-				initialVolume = 0;
+				stage.scaleMode = StageScaleMode.NO_SCALE;
+				stage.align = StageAlign.TOP_LEFT;
+				stage.addEventListener(Event.RESIZE, resizeHandler);
+				stage.addEventListener(MouseEvent.CLICK, clickHandler);
+
+				var initialVolume:Number = commonStatus.volume;
+				if(commonStatus.muted) {
+					initialVolume = 0;
+				}
+
+				myMp3Player = new JplayerMp3(initialVolume);
+				addChild(myMp3Player);
+
+				myMp4Player = new JplayerMp4(initialVolume);
+				addChild(myMp4Player);
+
+				myRtmpPlayer = new JplayerRtmp(initialVolume);
+				addChild(myRtmpPlayer);
+
+				switchType("mp3"); // set default state to mp3
 			}
-			myMp3Player = new JplayerMp3(initialVolume);
-			addChild(myMp3Player);
-
-			myMp4Player = new JplayerMp4(initialVolume);
-			addChild(myMp4Player);
-
-			setupListeners(!isMp3, isMp3); // Set up the listeners to the default isMp3 state.
 
 			// The ContextMenu only partially works. The menu select events never occur.
 			// Investigated and it is something to do with the way jPlayer inserts the Flash on the page.
@@ -94,43 +120,100 @@ package {
 			var myContextMenu:ContextMenu = new ContextMenu();
 			myContextMenu.hideBuiltInItems();
 			var menuItem_jPlayer:ContextMenuItem = new ContextMenuItem("jPlayer " + JplayerStatus.VERSION);
-			var menuItem_happyworm:ContextMenuItem = new ContextMenuItem("© 2009-2011 Happyworm Ltd", true);
+			var menuItem_happyworm:ContextMenuItem = new ContextMenuItem("© 2009-2012 Happyworm Ltd", true);
 			menuItem_jPlayer.addEventListener(ContextMenuEvent.MENU_ITEM_SELECT, menuSelectHandler_jPlayer);
 			menuItem_happyworm.addEventListener(ContextMenuEvent.MENU_ITEM_SELECT, menuSelectHandler_happyworm);
 			myContextMenu.customItems.push(menuItem_jPlayer, menuItem_happyworm);
 			contextMenu = myContextMenu;
 
 			// Log console for dev compile option: debug
-			if(debug) {
+			if(debug || directAccess) {
 				txLog = new TextField();
 				txLog.x = 5;
 				txLog.y = 5;
-				txLog.width = 540;
-				txLog.height = 390;
+				txLog.width = stage.stageWidth - 10;
+				txLog.height = stage.stageHeight - 10;
+				txLog.backgroundColor = 0xEEEEFF;
 				txLog.border = true;
 				txLog.background = true;
-				txLog.backgroundColor = 0xEEEEFF;
-				txLog.multiline = true;
 				txLog.text = "jPlayer " + JplayerStatus.VERSION;
-				txLog.visible = false;
-				this.addChild(txLog);
-				this.stage.addEventListener(KeyboardEvent.KEY_UP, keyboardHandler);
 
-				myMp3Player.addEventListener(JplayerEvent.DEBUG_MSG, debugMsgHandler);
-				myMp4Player.addEventListener(JplayerEvent.DEBUG_MSG, debugMsgHandler);
+				if(debug) {
+					txLog.multiline = true;
+					txLog.visible = false;
+				} else if(directAccess) {
+					txLog.visible = true;
+				}
+				if(debug && directAccess) {
+					txLog.visible = true;
+					log("Direct Access");
+				}
+
+				this.addChild(txLog);
+
+				if(debug && !securityIssue) {
+					this.stage.addEventListener(KeyboardEvent.KEY_UP, keyboardHandler);
+
+					myMp3Player.addEventListener(JplayerEvent.DEBUG_MSG, debugMsgHandler);
+					myMp4Player.addEventListener(JplayerEvent.DEBUG_MSG, debugMsgHandler);
+					myRtmpPlayer.addEventListener(JplayerEvent.DEBUG_MSG, debugMsgHandler);
+				}
 			}
 
-			// Delay init() because Firefox 3.5.7+ developed a bug with local testing in Firebug.
-			myInitTimer.addEventListener(TimerEvent.TIMER, init);
-			myInitTimer.start();
+			if(!securityIssue) {
+				// Delay init() because Firefox 3.5.7+ developed a bug with local testing in Firebug.
+				myInitTimer.addEventListener(TimerEvent.TIMER, init);
+				myInitTimer.start();
+			}
+		}
+
+		private function switchType(playType:String):void {
+			switch(playType) {
+				case "rtmpa":
+				isRtmp=true;
+				isMp3=false;
+				isMp4=false;
+				isVideo=false;
+				break;
+			case "rtmpv":
+				isRtmp=true;
+				isMp3=false;
+				isMp4=false;
+				isVideo=true;
+				break;
+			case "mp3":
+				isRtmp=false;
+				isMp3=true;
+				isMp4=false;
+				isVideo=false;
+				break;
+			case "mp4":
+				isRtmp=false;
+				isMp3=false;
+				isMp4=true;
+				isVideo=false;
+				break;
+			case "m4v":
+				isRtmp=false;
+				isMp3=false;
+				isMp4=true;
+				isVideo=true;
+				break;
+			}
+			
+			listenToMp3(isMp3);
+			listenToMp4(isMp4);
+			listenToRtmp(isRtmp);
 		}
 		
 		private function init(e:TimerEvent):void {
 			myInitTimer.stop();
-			if(ExternalInterface.available) {
+			if(ExternalInterface.available && !securityIssue) {
 				ExternalInterface.addCallback("fl_setAudio_mp3", fl_setAudio_mp3);
 				ExternalInterface.addCallback("fl_setAudio_m4a", fl_setAudio_m4a);
 				ExternalInterface.addCallback("fl_setVideo_m4v", fl_setVideo_m4v);
+				ExternalInterface.addCallback("fl_setAudio_rtmp", fl_setAudio_rtmp);
+				ExternalInterface.addCallback("fl_setVideo_rtmp", fl_setVideo_rtmp);
 				ExternalInterface.addCallback("fl_clearMedia", fl_clearMedia);
 				ExternalInterface.addCallback("fl_load", fl_load);
 				ExternalInterface.addCallback("fl_play", fl_play);
@@ -142,17 +225,30 @@ package {
 				ExternalInterface.call(jQuery, "jPlayerFlashEvent", JplayerEvent.JPLAYER_READY, extractStatusData(commonStatus)); // See JplayerStatus() class for version number.
 			}
 		}
-		private function setupListeners(oldMP3:Boolean, newMP3:Boolean):void {
-			if(oldMP3 != newMP3) {
-				if(newMP3) {
-					listenToMp3(true);
-					listenToMp4(false);
-				} else {
-					listenToMp3(false);
-					listenToMp4(true);
+		private function checkFlashVars(p:Object):void {
+			var i:Number = 0;
+			for each (var s:String in p) {
+				if(illegalChar(s)) {
+					securityIssue = true; // Illegal char found
 				}
+				i++;
+			}
+			if(i === 0) {
+				directAccess = true;
 			}
 		}
+		private function illegalChar(s:String):Boolean {
+			var illegals:String = "' \" ( ) { } * + /";
+			if(Boolean(s)) { // Otherwise exception if parameter null.
+				for each (var illegal:String in illegals.split(' ')) {
+					if(s.indexOf(illegal) >= 0) {
+						return true; // Illegal char found
+					}
+				}
+			}
+			return false;
+		}
+		// switchType() here
 		private function listenToMp3(active:Boolean):void {
 			if(active) {
 				myMp3Player.addEventListener(JplayerEvent.JPLAYER_ERROR, jPlayerFlashEvent);
@@ -211,13 +307,49 @@ package {
 				myMp4Player.removeEventListener(JplayerEvent.JPLAYER_LOADEDMETADATA, jPlayerMetaDataHandler); // Note the unique handler
 			}
 		}
+
+		private function listenToRtmp(active:Boolean):void {
+			if(active) {
+				myRtmpPlayer.addEventListener(JplayerEvent.JPLAYER_ERROR, jPlayerFlashEvent);
+				myRtmpPlayer.addEventListener(JplayerEvent.JPLAYER_PROGRESS, jPlayerFlashEvent);
+				myRtmpPlayer.addEventListener(JplayerEvent.JPLAYER_TIMEUPDATE, jPlayerFlashEvent);
+				myRtmpPlayer.addEventListener(JplayerEvent.JPLAYER_ENDED, jPlayerFlashEvent);
+
+				myRtmpPlayer.addEventListener(JplayerEvent.JPLAYER_PLAY, jPlayerFlashEvent);
+				myRtmpPlayer.addEventListener(JplayerEvent.JPLAYER_PAUSE, jPlayerFlashEvent);
+				myRtmpPlayer.addEventListener(JplayerEvent.JPLAYER_LOADSTART, jPlayerFlashEvent);
+				
+				myRtmpPlayer.addEventListener(JplayerEvent.JPLAYER_CANPLAY, jPlayerFlashEvent);
+
+				myRtmpPlayer.addEventListener(JplayerEvent.JPLAYER_SEEKING, jPlayerFlashEvent);
+				myRtmpPlayer.addEventListener(JplayerEvent.JPLAYER_SEEKED, jPlayerFlashEvent);
+
+				myRtmpPlayer.addEventListener(JplayerEvent.JPLAYER_LOADEDMETADATA, jPlayerMetaDataHandler); // Note the unique handler
+			} else {
+				myRtmpPlayer.removeEventListener(JplayerEvent.JPLAYER_ERROR, jPlayerFlashEvent);
+				myRtmpPlayer.removeEventListener(JplayerEvent.JPLAYER_PROGRESS, jPlayerFlashEvent);
+				myRtmpPlayer.removeEventListener(JplayerEvent.JPLAYER_TIMEUPDATE, jPlayerFlashEvent);
+				myRtmpPlayer.removeEventListener(JplayerEvent.JPLAYER_ENDED, jPlayerFlashEvent);
+
+				myRtmpPlayer.removeEventListener(JplayerEvent.JPLAYER_PLAY, jPlayerFlashEvent);
+				myRtmpPlayer.removeEventListener(JplayerEvent.JPLAYER_PAUSE, jPlayerFlashEvent);
+				myRtmpPlayer.removeEventListener(JplayerEvent.JPLAYER_LOADSTART, jPlayerFlashEvent);
+				
+				myRtmpPlayer.addEventListener(JplayerEvent.JPLAYER_CANPLAY, jPlayerFlashEvent);
+
+				myRtmpPlayer.removeEventListener(JplayerEvent.JPLAYER_SEEKING, jPlayerFlashEvent);
+				myRtmpPlayer.removeEventListener(JplayerEvent.JPLAYER_SEEKED, jPlayerFlashEvent);
+
+				myRtmpPlayer.removeEventListener(JplayerEvent.JPLAYER_LOADEDMETADATA, jPlayerMetaDataHandler); // Note the unique handler
+			}
+		}
+
 		private function fl_setAudio_mp3(src:String):Boolean {
 			if (src != null) {
 				log("fl_setAudio_mp3: "+src);
-				setupListeners(isMp3, true);
-				isMp3 = true;
-				isVideo = false;
+				switchType("mp3");
 				myMp4Player.clearFile();
+				myRtmpPlayer.clearFile();
 				myMp3Player.setFile(src);
 				return true;
 			} else {
@@ -225,13 +357,41 @@ package {
 				return false;
 			}
 		}
+		private function fl_setAudio_rtmp(src:String):Boolean {
+			tracer("SET RTMP: "+src);
+			if (src != null) {
+				log("fl_setAudio_rtmp: "+src);
+				switchType("rtmpa");
+				myMp4Player.clearFile();
+				myMp3Player.clearFile();
+				myRtmpPlayer.setFile(src,false);
+				return true;
+			} else {
+				log("fl_setAudio_rtmp: null");
+				return false;
+			}
+		}
+		
+		private function fl_setVideo_rtmp(src:String):Boolean {
+			tracer("SET RTMP: "+src);
+			if (src != null) {
+				log("fl_setVideo_rtmp: "+src);
+				switchType("rtmpv");
+				myMp4Player.clearFile();
+				myMp3Player.clearFile();
+				myRtmpPlayer.setFile(src,true);
+				return true;
+			} else {
+				log("fl_setVideo_rtmp: null");
+				return false;
+			}
+		}
 		private function fl_setAudio_m4a(src:String):Boolean {
 			if (src != null) {
 				log("fl_setAudio_m4a: "+src);
-				setupListeners(isMp3, false);
-				isMp3 = false;
-				isVideo = false;
+				switchType("mp4")
 				myMp3Player.clearFile();
+				myRtmpPlayer.clearFile();
 				myMp4Player.setFile(src);
 				return true;
 			} else {
@@ -242,10 +402,9 @@ package {
 		private function fl_setVideo_m4v(src:String):Boolean {
 			if (src != null) {
 				log("fl_setVideo_m4v: "+src);
-				setupListeners(isMp3, false);
-				isMp3 = false;
-				isVideo = true;
+				switchType("m4v");
 				myMp3Player.clearFile();
+				myRtmpPlayer.clearFile();
 				myMp4Player.setFile(src);
 				return true;
 			} else {
@@ -257,38 +416,42 @@ package {
 			log("clearMedia.");
 			myMp3Player.clearFile();
 			myMp4Player.clearFile();
+			myRtmpPlayer.clearFile();
 		}
+
+		private function getType():Object {
+			var returnType:Object;
+			if(isMp3) {
+				returnType=myMp3Player;
+			} 
+			if(isRtmp) {
+				returnType=myRtmpPlayer;
+			}
+			if(isMp4) {
+				returnType=myMp4Player;
+			}
+			return returnType;
+		}
+
 		private function fl_load():Boolean {
 			log("load.");
-			if(isMp3) {
-				return myMp3Player.load();
-			} else {
-				return myMp4Player.load();
-			}
+			var returnType=getType();
+			return returnType.load();
 		}
 		private function fl_play(time:Number = NaN):Boolean {
 			log("play: time = " + time);
-			if(isMp3) {
-				return myMp3Player.play(time * 1000); // Flash uses milliseconds
-			} else {
-				return myMp4Player.play(time * 1000); // Flash uses milliseconds
-			}
+			var returnType=getType();
+			return returnType.play(time * 1000); // Flash uses milliseconds
 		}
 		private function fl_pause(time:Number = NaN):Boolean {
 			log("pause: time = " + time);
-			if(isMp3) {
-				return myMp3Player.pause(time * 1000); // Flash uses milliseconds
-			} else {
-				return myMp4Player.pause(time * 1000); // Flash uses milliseconds
-			}
+			var returnType=getType();
+			return returnType.pause(time * 1000); // Flash uses milliseconds
 		}
 		private function fl_play_head(percent:Number):Boolean {
 			log("play_head: "+percent+"%");
-			if(isMp3) {
-				return myMp3Player.playHead(percent);
-			} else {
-				return myMp4Player.playHead(percent);
-			}
+			var returnType=getType();
+			return returnType.playHead(percent);
 		}
 		private function fl_volume(v:Number):void {
 			log("volume: "+v);
@@ -296,6 +459,7 @@ package {
 			if(!commonStatus.muted) {
 				myMp3Player.setVolume(v);
 				myMp4Player.setVolume(v);
+				myRtmpPlayer.setVolume(v);
 			}
 		}
 		private function fl_mute(mute:Boolean):void {
@@ -304,17 +468,25 @@ package {
 			if(mute) {
 				myMp3Player.setVolume(0);
 				myMp4Player.setVolume(0);
+				myRtmpPlayer.setVolume(0);
 			} else {
 				myMp3Player.setVolume(commonStatus.volume);
 				myMp4Player.setVolume(commonStatus.volume);
+				myRtmpPlayer.setVolume(commonStatus.volume);
 			}
 		}
 		private function jPlayerFlashEvent(e:JplayerEvent):void {
 			log("jPlayer Flash Event: " + e.type + ": " + e.target);
-			if(ExternalInterface.available) {
+			//tracer("jPlayer Flash Event: " + e.type + ": " + e.target);
+			if(ExternalInterface.available && !securityIssue) {
 				ExternalInterface.call(jQuery, "jPlayerFlashEvent", e.type, extractStatusData(e.data));
 			}
 		}
+		
+		private function tracer(msg:String):void {
+			traceOut.tracer(msg);
+		}
+		
 		private function extractStatusData(data:JplayerStatus):Object {
 			var myStatus:Object = {
 				version: JplayerStatus.VERSION,
@@ -334,7 +506,7 @@ package {
 		}
 		private function jPlayerMetaDataHandler(e:JplayerEvent):void {
 			log("jPlayerMetaDataHandler:" + e.target);
-			if(ExternalInterface.available) {
+			if(ExternalInterface.available && !securityIssue) {
 				resizeHandler(new Event(Event.RESIZE));
 				ExternalInterface.call(jQuery, "jPlayerFlashEvent", e.type, extractStatusData(e.data));
 			}
@@ -346,24 +518,38 @@ package {
 			var mediaY:Number = 0;
 			var mediaWidth:Number = 0;
 			var mediaHeight:Number = 0;
-
-			if(stage.stageWidth > 0 && stage.stageHeight > 0 && myMp4Player.myVideo.width > 0 && myMp4Player.myVideo.height > 0) {
-				var aspectRatioStage:Number = stage.stageWidth / stage.stageHeight;
-				var aspectRatioVideo:Number = myMp4Player.myVideo.width / myMp4Player.myVideo.height;
-				if(aspectRatioStage < aspectRatioVideo) {
-					mediaWidth = stage.stageWidth;
-					mediaHeight = stage.stageWidth / aspectRatioVideo;
-					mediaX = 0;
-					mediaY = (stage.stageHeight - mediaHeight) / 2;
-				} else {
-					mediaWidth = stage.stageHeight * aspectRatioVideo;
-					mediaHeight = stage.stageHeight;
-					mediaX = (stage.stageWidth - mediaWidth) / 2;
-					mediaY = 0;
-				}
-				resizeEntity(myMp4Player, mediaX, mediaY, mediaWidth, mediaHeight);
+			
+			var aspectRatioStage:Number = 0;
+			var aspectRatioVideo:Number = 0;
+			
+			var videoItem;
+			
+			if(isRtmp) {
+				videoItem = myRtmpPlayer;
 			}
-			if(debug && stage.stageWidth > 20 && stage.stageHeight > 20) {
+			if(isMp4) {
+				videoItem = myMp4Player;
+			}
+			
+			if(videoItem) {
+				if(stage.stageWidth > 0 && stage.stageHeight > 0 && videoItem.myVideo.width > 0 && videoItem.myVideo.height > 0) {
+					aspectRatioStage = stage.stageWidth / stage.stageHeight;
+					aspectRatioVideo = videoItem.myVideo.width / videoItem.myVideo.height;
+					if(aspectRatioStage < aspectRatioVideo) {
+						mediaWidth = stage.stageWidth;
+						mediaHeight = stage.stageWidth / aspectRatioVideo;
+						mediaX = 0;
+						mediaY = (stage.stageHeight - mediaHeight) / 2;
+					} else {
+						mediaWidth = stage.stageHeight * aspectRatioVideo;
+						mediaHeight = stage.stageHeight;
+						mediaX = (stage.stageWidth - mediaWidth) / 2;
+						mediaY = 0;
+					}
+					resizeEntity(videoItem, mediaX, mediaY, mediaWidth, mediaHeight);
+				}
+			}
+			if((debug || directAccess) && stage.stageWidth > 20 && stage.stageHeight > 20) {
 				txLog.width = stage.stageWidth - 10;
 				txLog.height = stage.stageHeight - 10;
 			}
@@ -375,6 +561,7 @@ package {
 			entity.height = mediaHeight;
 		}
 		private function clickHandler(e:MouseEvent):void {
+			// This needs to work with RTMP format too!
 			if(isMp3) {
 				jPlayerFlashEvent(new JplayerEvent(JplayerEvent.JPLAYER_CLICK, myMp3Player.myStatus, "click"))
 			} else {
@@ -392,6 +579,10 @@ package {
 		private function log(t:String):void {
 			if(debug) {
 				txLog.text = t + "\n" + txLog.text;
+				localAIRDebug = traceOut.localAIRDebug();
+				if(localAIRDebug) {
+					tracer(t);
+				}
 			}
 		}
 		private function debugMsgHandler(e:JplayerEvent):void {
