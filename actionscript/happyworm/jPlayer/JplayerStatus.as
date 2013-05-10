@@ -1,20 +1,20 @@
 ﻿/*
  * jPlayer Plugin for jQuery JavaScript Library
- * http://www.happyworm.com/jquery/jplayer
+ * http://www.jplayer.org
  *
- * Copyright (c) 2009 - 2012 Happyworm Ltd
+ * Copyright (c) 2009 - 2013 Happyworm Ltd
  * Dual licensed under the MIT and GPL licenses.
  *  - http://www.opensource.org/licenses/mit-license.php
  *  - http://www.gnu.org/copyleft/gpl.html
  *
  * Author: Mark J Panaghiston
- * Date: 12th April 2012
+ * Date: 20th April 2013
  */
 
 package happyworm.jPlayer {
 	public class JplayerStatus {
 
-		public static const VERSION:String = "2.1.2"; // The version of the Flash jPlayer entity.
+		public static const VERSION:String = "2.3.0"; // The version of the Flash jPlayer entity.
 
 		public var volume:Number = 0.5; // Not affected by reset()
 		public var muted:Boolean = false; // Not affected by reset()
@@ -40,6 +40,9 @@ package happyworm.jPlayer {
 		public var currentPercentRelative:Number;
 		public var currentPercentAbsolute:Number;
 		public var duration:Number;
+
+		public var videoWidth:Number;
+		public var videoHeight:Number;
 		
 		public var metaDataReady:Boolean;
 		public var metaData:Object;
@@ -69,6 +72,9 @@ package happyworm.jPlayer {
 			currentPercentRelative = 0;
 			currentPercentAbsolute = 0;
 			duration = 0;
+
+			videoWidth = 0;
+			videoHeight = 0;
 			
 			metaDataReady = false;
 			metaData = {};

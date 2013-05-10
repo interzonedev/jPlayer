@@ -2,19 +2,23 @@
  * Playlist Object for the jPlayer Plugin
  * http://www.jplayer.org
  *
- * Copyright (c) 2009 - 2011 Happyworm Ltd
+ * Copyright (c) 2009 - 2013 Happyworm Ltd
  * Dual licensed under the MIT and GPL licenses.
  *  - http://www.opensource.org/licenses/mit-license.php
  *  - http://www.gnu.org/copyleft/gpl.html
  *
  * Author: Mark J Panaghiston
- * Version: 2.1.0 (jPlayer 2.1.0)
- * Date: 1st September 2011
+ * Version: 2.3.0
+ * Date: 20th April 2013
+ *
+ * Requires:
+ *  - jQuery 1.7.0+
+ *  - jPlayer 2.3.0+
  */
 
 /* Code verified using http://www.jshint.com/ */
-/*jshint asi:false, bitwise:false, boss:false, browser:true, curly:true, debug:false, eqeqeq:true, eqnull:false, evil:false, forin:false, immed:false, jquery:true, laxbreak:false, newcap:true, noarg:true, noempty:true, nonew:true, nomem:false, onevar:false, passfail:false, plusplus:false, regexp:false, undef:true, sub:false, strict:false, white:false */
-/*global  jPlayerPlaylist: true, jQuery:false, alert:false */
+/*jshint asi:false, bitwise:false, boss:false, browser:true, curly:true, debug:false, eqeqeq:true, eqnull:false, evil:false, forin:false, immed:false, jquery:true, laxbreak:false, newcap:true, noarg:true, noempty:true, nonew:true, onevar:false, passfail:false, plusplus:false, regexp:false, undef:true, sub:false, strict:false, white:false, smarttabs:true */
+/*global  jPlayerPlaylist:true */
 
 (function($, undefined) {
 
@@ -27,7 +31,22 @@
 		this.removing = false; // Flag is true during remove animation, disabling the remove() method until complete.
 
 		this.cssSelector = $.extend({}, this._cssSelector, cssSelector); // Object: Containing the css selectors for jPlayer and its cssSelectorAncestor
-		this.options = $.extend(true, {}, this._options, options); // Object: The jPlayer constructor options for this playlist and the playlist options
+		this.options = $.extend(true, {
+			keyBindings: {
+				next: {
+					key: 39, // RIGHT
+					fn: function() {
+						self.next();
+					}
+				},
+				previous: {
+					key: 37, // LEFT
+					fn: function() {
+						self.previous();
+					}
+				}
+			}
+		}, this._options, options); // Object: The jPlayer constructor options for this playlist and the playlist options
 
 		this.playlist = []; // Array of Objects: The current playlist displayed (Un-shuffled or Shuffled)
 		this.original = []; // Array of Objects: The original playlist
@@ -51,17 +70,17 @@
 		};
 
 		// Create a ready event handler to initialize the playlist
-		$(this.cssSelector.jPlayer).bind($.jPlayer.event.ready, function(event) {
+		$(this.cssSelector.jPlayer).bind($.jPlayer.event.ready, function() {
 			self._init();
 		});
 
 		// Create an ended event handler to move to the next item
-		$(this.cssSelector.jPlayer).bind($.jPlayer.event.ended, function(event) {
+		$(this.cssSelector.jPlayer).bind($.jPlayer.event.ended, function() {
 			self.next();
 		});
 
 		// Create a play event handler to pause other instances
-		$(this.cssSelector.jPlayer).bind($.jPlayer.event.play, function(event) {
+		$(this.cssSelector.jPlayer).bind($.jPlayer.event.play, function() {
 			$(this).jPlayer("pauseOthers");
 		});
 
@@ -104,7 +123,7 @@
 		// Remove the empty <li> from the page HTML. Allows page to be valid HTML, while not interfereing with display animations
 		$(this.cssSelector.playlist + " ul").empty();
 
-		// Create .live() handlers for the playlist items along with the free media and remove controls.
+		// Create .on() handlers for the playlist items along with the free media and remove controls.
 		this._createItemHandlers();
 
 		// Instance jPlayer
@@ -174,7 +193,7 @@
 			var self = this;
 			this.playlist = [];
 			// Make both arrays point to the same object elements. Gives us 2 different arrays, each pointing to the same actual object. ie., Not copies of the object.
-			$.each(this.original, function(i,v) {
+			$.each(this.original, function(i) {
 				self.playlist[i] = self.original[i];
 			});
 		},
@@ -188,7 +207,7 @@
 
 			if(instant && !$.isFunction(instant)) {
 				$(this.cssSelector.playlist + " ul").empty();
-				$.each(this.playlist, function(i,v) {
+				$.each(this.playlist, function(i) {
 					$(self.cssSelector.playlist + " ul").append(self._createListItem(self.playlist[i]));
 				});
 				this._updateControls();
@@ -199,7 +218,7 @@
 					var $this = $(this);
 					$(this).empty();
 					
-					$.each(self.playlist, function(i,v) {
+					$.each(self.playlist, function(i) {
 						$this.append(self._createListItem(self.playlist[i]));
 					});
 					self._updateControls();
@@ -248,8 +267,8 @@
 		},
 		_createItemHandlers: function() {
 			var self = this;
-			// Create .live() handlers for the playlist items
-			$(this.cssSelector.playlist + " a." + this.options.playlistOptions.itemClass).die("click").live("click", function() {
+			// Create live handlers for the playlist items
+			$(this.cssSelector.playlist).off("click", "a." + this.options.playlistOptions.itemClass).on("click", "a." + this.options.playlistOptions.itemClass, function() {
 				var index = $(this).parent().parent().index();
 				if(self.current !== index) {
 					self.play(index);
@@ -260,15 +279,15 @@
 				return false;
 			});
 
-			// Create .live() handlers that disable free media links to force access via right click
-			$(self.cssSelector.playlist + " a." + this.options.playlistOptions.freeItemClass).die("click").live("click", function() {
+			// Create live handlers that disable free media links to force access via right click
+			$(this.cssSelector.playlist).off("click", "a." + this.options.playlistOptions.freeItemClass).on("click", "a." + this.options.playlistOptions.freeItemClass, function() {
 				$(this).parent().parent().find("." + self.options.playlistOptions.itemClass).click();
 				$(this).blur();
 				return false;
 			});
 
-			// Create .live() handlers for the remove controls
-			$(self.cssSelector.playlist + " a." + this.options.playlistOptions.removeItemClass).die("click").live("click", function() {
+			// Create live handlers for the remove controls
+			$(this.cssSelector.playlist).off("click", "a." + this.options.playlistOptions.removeItemClass).on("click", "a." + this.options.playlistOptions.removeItemClass, function() {
 				var index = $(this).parent().parent().index();
 				self.remove(index);
 				$(this).blur();
@@ -337,7 +356,7 @@
 
 							if(self.shuffled) {
 								var item = self.playlist[index];
-								$.each(self.original, function(i,v) {
+								$.each(self.original, function(i) {
 									if(self.original[i] === item) {
 										self.original.splice(i, 1);
 										return false; // Exit $.each
