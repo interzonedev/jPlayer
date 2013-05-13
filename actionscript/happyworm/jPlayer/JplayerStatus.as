@@ -1,4 +1,4 @@
-﻿/*
+/*
  * jPlayer Plugin for jQuery JavaScript Library
  * http://www.jplayer.org
  *
@@ -25,9 +25,11 @@ package happyworm.jPlayer {
 		public var srcSet:Boolean;
 		public var isPlaying:Boolean;
 		public var isSeeking:Boolean;
+		public var flashIsSeeking:Boolean;
 
 		public var playOnLoad:Boolean;
 		public var playOnSeek:Boolean;
+		public var playAfterFlashIsSeeking:Boolean;
 
 		public var isStartingDownload:Boolean;
 		public var isLoading:Boolean;
@@ -40,7 +42,7 @@ package happyworm.jPlayer {
 		public var currentPercentRelative:Number;
 		public var currentPercentAbsolute:Number;
 		public var duration:Number;
-
+		
 		public var videoWidth:Number;
 		public var videoHeight:Number;
 		
@@ -57,9 +59,11 @@ package happyworm.jPlayer {
 			srcSet = false;
 			isPlaying = false;
 			isSeeking = false;
+			flashIsSeeking = false;
 
 			playOnLoad = false;
 			playOnSeek = false;
+			playAfterFlashIsSeeking = false;
 
 			isStartingDownload = false;
 			isLoading = false;
@@ -72,7 +76,7 @@ package happyworm.jPlayer {
 			currentPercentRelative = 0;
 			currentPercentAbsolute = 0;
 			duration = 0;
-
+			
 			videoWidth = 0;
 			videoHeight = 0;
 			
