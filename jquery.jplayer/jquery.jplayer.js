@@ -1751,6 +1751,10 @@
 				this._urlNotSetError("stop");
 			}
 		},
+
+    /*
+    we don't support this.
+
 		playHead: function(p) {
 			p = this._limitValue(p, 0, 100);
 			if(this.status.srcSet) {
@@ -1763,6 +1767,7 @@
 				this._urlNotSetError("playHead");
 			}
 		},
+		*/
 		_muted: function(muted) {
 			this.options.muted = muted;
 			if(this.html.used) {
@@ -1957,9 +1962,12 @@
 		playBar: function(e) { // Handles clicks on the playBar
 			this.seekBar(e);
 		},
+    /*
+    we don't support this.
 		repeat: function() { // Handle clicks on the repeat button
 			this._loop(true);
 		},
+		*/
 		repeatOff: function() { // Handle clicks on the repeatOff button
 			this._loop(false);
 		},
