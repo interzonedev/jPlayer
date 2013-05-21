@@ -2340,6 +2340,8 @@
 			});
 
 			this.htmlElement.media.src = this.status.src;
+      //set the type from the format.
+      this.htmlElement.media.setAttribute("type", this.format[this.status.formatType].codec.replace(/\"/g, ""));
 
 			if(this.options.preload !== 'none') {
 				this._html_load(); // See function for comments
