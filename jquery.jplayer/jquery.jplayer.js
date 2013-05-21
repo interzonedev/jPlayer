@@ -106,7 +106,7 @@
 			'error', // Event error code in event.jPlayer.error.type. See $.jPlayer.error
 			'warning', // Event warning code in event.jPlayer.warning.type. See $.jPlayer.warning
 
-			// Other events match HTML5 spec.
+		// Other events match HTML5 spec.
 			'loadstart',
 			'progress',
 			'suspend',
@@ -166,7 +166,7 @@
 			}
 		});
 	};
-
+	
 	// Default for jPlayer option.timeFormat
 	$.jPlayer.timeFormat = {
 		showHour: false,
@@ -1396,6 +1396,7 @@
 								paused = this.status.paused; 
 
 							this.setMedia(this.status.media);
+							this.volume(this.options.volume);
 							if(currentTime > 0) {
 								if(paused) {
 									this.pause(currentTime);
@@ -1540,8 +1541,8 @@
 						width: this.status.currentPercentAbsolute+"%"
 					}, 250, "linear");
 				} else {
-					this.css.jq.playBar.width(this.status.currentPercentRelative+"%");
-				}
+				this.css.jq.playBar.width(this.status.currentPercentRelative+"%");
+			}
 			}
 			if(this.css.jq.currentTime.length) {
 				this.css.jq.currentTime.text(this._convertTime(this.status.currentTime));
@@ -2643,24 +2644,24 @@
 
 			var version = 0,
 				flash;
-			if(window.ActiveXObject) {
-				try {
+			if(window.ActiveXObject){
+				try{
 					flash = new ActiveXObject("ShockwaveFlash.ShockwaveFlash");
 					if (flash) { // flash will return null when ActiveX is disabled
 						var v = flash.GetVariable("$version");
 						if(v) {
 							v = v.split(" ")[1].split(",");
 							version = parseInt(v[0], 10) + "." + parseInt(v[1], 10);
-						}
-					}
+				}
+				}
 				} catch(e) {}
 			}
-			else if(navigator.plugins && navigator.mimeTypes.length > 0) {
+			else if(navigator.plugins && navigator.mimeTypes.length > 0){
 				flash = navigator.plugins["Shockwave Flash"];
-				if(flash) {
+				if(flash){
 					version = navigator.plugins["Shockwave Flash"].description.replace(/.*\s(\d+\.\d+).*/, "$1");
+					}
 				}
-			}
 			return version * 1; // Converts to a number
 		},
 		_checkForFlash: function (version) {
