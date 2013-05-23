@@ -763,6 +763,8 @@
 
 			this.options.volume = this._limitValue(this.options.volume, 0, 1); // Limit volume value's bounds.
 
+      this.useSourceTag = this.options.useSourceTag;
+
 			// Create the formats array, with prority based on the order of the supplied formats string
 			$.each(this.options.supplied.toLowerCase().split(","), function(index1, value1) {
 				var format = value1.replace(/^\s+|\s+$/g, ""); //trim
@@ -2339,11 +2341,15 @@
 				$media.append(track);
 			});
 
-			this.htmlElement.media.src = this.status.src;
       //set the type from the format.
       var format = this.format[this.status.formatType];
-      if(format && format.codec){
-        this.htmlElement.media.setAttribute("type", format.codec.replace(/\"/g, ""));
+      if(this.useSourceTag && format && format.codec){
+        var source = document.createElement('source');
+        source.setAttribute("src",this.status.src);
+        source.setAttribute("type", format.codec.replace(/\"/g, ""));
+        $media.append(source);
+      }else{
+        this.htmlElement.media.src = this.status.src;
       }
 
 			if(this.options.preload !== 'none') {
@@ -2386,7 +2392,11 @@
 		},
 		_html_clearMedia: function() {
 			if(this.htmlElement.media) {
-				this.htmlElement.media.src = "about:blank";
+        if (this.useSourceTag) {
+          $(this.htmlElement.media).empty();
+        } else {
+          this.htmlElement.media.src = "about:blank";
+        }
 				// The following load() is only required for Firefox 3.6 (PowerMacs).
 				// Recent HTMl5 browsers only require the src change. Due to changes in W3C spec and load() effect.
 				this.htmlElement.media.load(); // Stops an old, "in progress" download from continuing the download. Triggers the loadstart, error and emptied events, due to the empty src. Also an abort event if a download was in progress.
