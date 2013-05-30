@@ -8,25 +8,32 @@
  *  - http://www.gnu.org/copyleft/gpl.html
  *
  * Author: Mark J Panaghiston
- * Version: 2.3.4
- * Date: 28th May 2013
+ * Version: 2.3.9
+ * Date: 30th May 2013
  */
 
 /* Code verified using http://www.jshint.com/ */
 /*jshint asi:false, bitwise:false, boss:false, browser:true, curly:true, debug:false, eqeqeq:true, eqnull:false, evil:false, forin:false, immed:false, jquery:true, laxbreak:false, newcap:true, noarg:true, noempty:true, nonew:true, onevar:false, passfail:false, plusplus:false, regexp:false, undef:true, sub:false, strict:false, white:false, smarttabs:true */
 /*global define:false, ActiveXObject:false, alert:false */
 
+/* Support for Zepto 1.0 compiled with optional data module.
+ * You will need to manually switch the 2 sets of lines in the code below.
+ * Search terms: "jQuery Switch" and "Zepto Switch"
+ */
+
 (function (root, factory) {
 	if (typeof define === 'function' && define.amd) {
 		// AMD. Register as an anonymous module.
-		define(['jquery'], factory);
+		define(['jquery'], factory); // jQuery Switch
+		// define(['zepto'], factory); // Zepto Switch
 	} else {
 		// Browser globals
-		factory(root.jQuery);
+		factory(root.jQuery); // jQuery Switch
+		// factory(root.Zepto); // Zepto Switch
 	}
 }(this, function ($, undefined) {
 
-	// Adapted from jquery.ui.widget.js (1.8.7): $.widget.bridge
+	// Adapted from jquery.ui.widget.js (1.8.7): $.widget.bridge - Tweaked $.data(this,XYZ) to $(this).data(XYZ) for Zepto
 	$.fn.jPlayer = function( options ) {
 		var name = "jPlayer";
 		var isMethodCall = typeof options === "string",
@@ -45,7 +52,7 @@
 
 		if ( isMethodCall ) {
 			this.each(function() {
-				var instance = $.data( this, name ),
+				var instance = $(this).data( name ),
 					methodValue = instance && $.isFunction( instance[options] ) ?
 						instance[ options ].apply( instance, args ) :
 						instance;
@@ -56,12 +63,12 @@
 			});
 		} else {
 			this.each(function() {
-				var instance = $.data( this, name );
+				var instance = $(this).data( name );
 				if ( instance ) {
 					// instance.option( options || {} )._init(); // Orig jquery.ui.widget.js code: Not recommend for jPlayer. ie., Applying new options to an existing instance (via the jPlayer constructor) and performing the _init(). The _init() is what concerns me. It would leave a lot of event handlers acting on jPlayer instance and the interface.
 					instance.option( options || {} ); // The new constructor only changes the options. Changing options only has basic support atm.
 				} else {
-					$.data( this, name, new $.jPlayer( options, this ) );
+					$(this).data( name, new $.jPlayer( options, this ) );
 				}
 			});
 		}
@@ -86,6 +93,11 @@
 	};
 	// End of: (Adapted from jquery.ui.widget.js (1.8.7))
 
+	// Zepto is missing one of the animation methods.
+	if(typeof $.fn.stop !== 'function') {
+		$.fn.stop = function() {};
+	}
+
 	// Emulated HTML5 methods and properties
 	$.jPlayer.emulateMethods = "load play pause";
 	$.jPlayer.emulateStatus = "src readyState networkState currentTime duration paused ended playbackRate";
@@ -106,7 +118,7 @@
 			'error', // Event error code in event.jPlayer.error.type. See $.jPlayer.error
 			'warning', // Event warning code in event.jPlayer.warning.type. See $.jPlayer.warning
 
-		// Other events match HTML5 spec.
+			// Other events match HTML5 spec.
 			'loadstart',
 			'progress',
 			'suspend',
@@ -166,7 +178,7 @@
 			}
 		});
 	};
-	
+
 	// Default for jPlayer option.timeFormat
 	$.jPlayer.timeFormat = {
 		showHour: false,
@@ -454,8 +466,8 @@
 	$.jPlayer.prototype = {
 		count: 0, // Static Variable: Change it via prototype.
 		version: { // Static Object
-			script: "2.3.4",
-			needFlash: "2.3.4",
+			script: "2.3.9",
+			needFlash: "2.3.5",
 			flash: "unknown"
 		},
 		options: { // Instanced in $.jPlayer() constructor
@@ -1062,12 +1074,8 @@
 			}
 
 			// Initialize the interface components with the options.
-			this._updateNativeVideoControls(); // Must do this first, otherwise there is a bizarre bug in iOS 4.3.2, where the native controls are not shown. Fails in iOS if called after _updateButtons() below. Works if called later in setMedia too, so it odd.
-			this._updateInterface();
-			this._updateButtons(false);
-			this._updateAutohide();
-			this._updateVolume(this.options.volume);
-			this._updateMute(this.options.muted);
+			this._updateNativeVideoControls();
+			// The other controls are now setup in _cssSelectorAncestor()
 			if(this.css.jq.videoPlay.length) {
 				this.css.jq.videoPlay.hide();
 			}
@@ -1499,8 +1507,11 @@
 			this.status.ended = false; // status.ended;
 		},
 		_updateButtons: function(playing) {
-			if(playing !== undefined) {
+			if(playing === undefined) {
+				playing = !this.status.paused;
+			} else {
 				this.status.paused = !playing;
+			}
 				if(this.css.jq.play.length && this.css.jq.pause.length) {
 					if(playing) {
 						this.css.jq.play.hide();
@@ -1510,7 +1521,6 @@
 						this.css.jq.pause.hide();
 					}
 				}
-			}
 			if(this.css.jq.restoreScreen.length && this.css.jq.fullScreen.length) {
 				if(this.status.noFullWindow) {
 					this.css.jq.fullScreen.hide();
@@ -1543,8 +1553,8 @@
 						width: this.status.currentPercentAbsolute+"%"
 					}, 250, "linear");
 				} else {
-				this.css.jq.playBar.width(this.status.currentPercentRelative+"%");
-			}
+					this.css.jq.playBar.width(this.status.currentPercentRelative+"%");
+				}
 			}
 			if(this.css.jq.currentTime.length) {
 				this.css.jq.currentTime.text(this._convertTime(this.status.currentTime));
@@ -1831,12 +1841,13 @@
 		},
 		volumeBar: function(e) { // Handles clicks on the volumeBar
 			if(this.css.jq.volumeBar.length) {
-				var	offset = this.css.jq.volumeBar.offset(),
+				// Using $(e.currentTarget) to enable multiple volume bars
+				var $bar = $(e.currentTarget),
+					offset = $bar.offset(),
 					x = e.pageX - offset.left,
-					w = this.css.jq.volumeBar.width(),
-					y = this.css.jq.volumeBar.height() - e.pageY + offset.top,
-					h = this.css.jq.volumeBar.height();
-
+					w = $bar.width(),
+					y = $bar.height() - e.pageY + offset.top,
+					h = $bar.height();
 				if(this.options.verticalVolume) {
 					this.volume(y/h);
 				} else {
@@ -1847,8 +1858,8 @@
 				this._muted(false);
 			}
 		},
-		volumeBarValue: function(e) { // Handles clicks on the volumeBarValue
-			this.volumeBar(e);
+		volumeBarValue: function() { // Handles clicks on the volumeBarValue
+			// The volumeBar handles this event as the event propagates up the DOM.
 		},
 		_updateVolume: function(v) {
 			if(v === undefined) {
@@ -1902,6 +1913,13 @@
 			$.each(this.options.cssSelector, function(fn, cssSel) {
 				self._cssSelector(fn, cssSel);
 			});
+
+			// Set the GUI to the current state.
+			this._updateInterface();
+			this._updateButtons();
+			this._updateAutohide();
+			this._updateVolume();
+			this._updateMute();
 		},
 		_cssSelector: function(fn, cssSel) {
 			var self = this;
@@ -1954,16 +1972,18 @@
 			}
 		},
 		seekBar: function(e) { // Handles clicks on the seekBar
-			if(this.css.jq.seekBar) {
-				var offset = this.css.jq.seekBar.offset();
-				var x = e.pageX - offset.left;
-				var w = this.css.jq.seekBar.width();
-				var p = 100*x/w;
+			if(this.css.jq.seekBar.length) {
+				// Using $(e.currentTarget) to enable multiple seek bars
+				var $bar = $(e.currentTarget),
+					offset = $bar.offset(),
+					x = e.pageX - offset.left,
+					w = $bar.width(),
+					p = 100 * x / w;
 				this.playHead(p);
 			}
 		},
-		playBar: function(e) { // Handles clicks on the playBar
-			this.seekBar(e);
+		playBar: function() { // Handles clicks on the playBar
+			// The seekBar handles this event as the event propagates up the DOM.
 		},
     /*
     we don't support this.
@@ -2349,7 +2369,7 @@
         source.setAttribute("type", format.codec.replace(/\"/g, ""));
         $media.append(source);
       }else{
-        this.htmlElement.media.src = this.status.src;
+			this.htmlElement.media.src = this.status.src;
       }
 
 			if(this.options.preload !== 'none') {
@@ -2395,7 +2415,7 @@
         if (this.useSourceTag) {
           $(this.htmlElement.media).empty();
         } else {
-          this.htmlElement.media.src = "about:blank";
+				this.htmlElement.media.src = "about:blank";
         }
 				// The following load() is only required for Firefox 3.6 (PowerMacs).
 				// Recent HTMl5 browsers only require the src change. Due to changes in W3C spec and load() effect.
@@ -2659,24 +2679,24 @@
 
 			var version = 0,
 				flash;
-			if(window.ActiveXObject){
-				try{
+			if(window.ActiveXObject) {
+				try {
 					flash = new ActiveXObject("ShockwaveFlash.ShockwaveFlash");
 					if (flash) { // flash will return null when ActiveX is disabled
 						var v = flash.GetVariable("$version");
 						if(v) {
 							v = v.split(" ")[1].split(",");
 							version = parseInt(v[0], 10) + "." + parseInt(v[1], 10);
-				}
-				}
+						}
+					}
 				} catch(e) {}
 			}
-			else if(navigator.plugins && navigator.mimeTypes.length > 0){
+			else if(navigator.plugins && navigator.mimeTypes.length > 0) {
 				flash = navigator.plugins["Shockwave Flash"];
-				if(flash){
+				if(flash) {
 					version = navigator.plugins["Shockwave Flash"].description.replace(/.*\s(\d+\.\d+).*/, "$1");
-					}
 				}
+			}
 			return version * 1; // Converts to a number
 		},
 		_checkForFlash: function (version) {
