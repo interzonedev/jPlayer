@@ -208,6 +208,7 @@ package happyworm.jPlayer {
 			// customClient.onPlayStatus = onPlayStatusHandler; // According to the forums and my tests, onPlayStatus only works with FMS (Flash Media Server).
 			myStream = null;
 			myStream = new NetStream(myConnection);
+			myStream.bufferTime = 5;
 			myStream.addEventListener(NetStatusEvent.NET_STATUS, netStatusHandler);
 			myStream.client = customClient;
 			myVideo.attachNetStream(myStream);
@@ -300,14 +301,10 @@ package happyworm.jPlayer {
 			}
 		}
 
-		public function seekToPausePosition():void {
-			setTemporaryVolume(0);
-			myStream.seek(myStatus.pausePosition/1000); // Seek to the pause position.
-		}
-
 		public function seekToPausePositionAndPlay():void {
+			setTemporaryVolume(0);
 			myStatus.playAfterFlashIsSeeking = true; // Note that once flash is done seeking, we should resume/play the stream.
-			seekToPausePosition();
+			myStream.seek(myStatus.pausePosition/1000); // Seek to the pause position.
 		}
 
 		public function pause(time:Number = NaN):Boolean {
@@ -355,14 +352,14 @@ package happyworm.jPlayer {
 			} else if(myStatus.isLoading || myStatus.isLoaded) {
 				if(myStatus.metaDataReady && myStatus.pausePosition > myStatus.duration) { // The time is invalid, ie., past the end.
 					myStatus.pausePosition = 0;
-					seekToPausePosition();
+					seekToPausePositionAndPlay();
 					seekedEvent(); // Deals with seeking effect when using setMedia() then pause(huge). NB: There is no preceeding seeking event.
 				} else if(!isNaN(time)) {
 					if(getSeekTimeRatio() > getLoadRatio()) { // Use an estimate based on the downloaded amount
 						seeking(true);
 					} else {
 						if(myStatus.metaDataReady) { // Otherwise seek(0) will stop the metadata loading.
-							seekToPausePosition();
+							seekToPausePositionAndPlay();
 						}
 					}
 				}
