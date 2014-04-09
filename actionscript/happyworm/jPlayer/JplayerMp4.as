@@ -53,6 +53,9 @@ package happyworm.jPlayer {
 			seekingTimer.addEventListener(TimerEvent.TIMER, seekingHandler);
 			
 			myStatus.volume = volume;
+
+            this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "JplayerMp4 initialized: volume = " + volume));
+
 		}
 		private function progressUpdates(active:Boolean):void {
 			if(active) {
@@ -72,8 +75,9 @@ package happyworm.jPlayer {
 			progressEvent();
 		}
 		private function progressEvent():void {
-			this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "progressEvent:"));
+			this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "progressEvent: before update"));
 			updateStatusValues();
+            this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "progressEvent: after update"));
 			this.dispatchEvent(new JplayerEvent(JplayerEvent.JPLAYER_PROGRESS, myStatus));
 		}
 		private function timeUpdates(active:Boolean):void {
@@ -138,7 +142,8 @@ package happyworm.jPlayer {
 					break;
 				case "NetStream.Play.Start":
 					// This event code occurs once, when the media is opened. Equiv to loadOpen() in mp3 player.
-					
+                    this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "netStatusHandler: NetStream.Play.Start begin"));
+
 					//If we're not playing from the start, temporarily mute the stream; otherwise, while we seek to the starting position, the audio will come through.
 					if(myStatus.pausePosition > 0){
 						setTemporaryVolume(0);
@@ -148,6 +153,9 @@ package happyworm.jPlayer {
 					this.dispatchEvent(new JplayerEvent(JplayerEvent.JPLAYER_LOADSTART, myStatus));
 					progressUpdates(true);
 					// See onMetaDataHandler() for other condition, since duration is vital.
+
+                    this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "netStatusHandler: NetStream.Play.Start end"));
+
 					break;
 				case "NetStream.Play.Stop":
 					this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "NetStream.Play.Stop: getDuration() - getCurrentTime() = " + (getDuration() - getCurrentTime())));
