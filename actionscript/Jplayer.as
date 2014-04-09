@@ -74,7 +74,7 @@ package {
 		private var contextMenuFix:Sprite = new Sprite(); // A sprite that will be on top and fix the content menu over video bug. (A Flash plugin bug.)
 
 		private var txLog:TextField;
-		private var debug:Boolean = false; // Set debug to false for release compile!
+		private var debug:Boolean = true; // Set debug to false for release compile!
 		private var localAIRDebug:Boolean = false; // This is autodetermined by AIR app - leave false!
 
 		private var traceOut:TraceOut;
@@ -300,6 +300,8 @@ package {
 		}
 		private function listenToMp4(active:Boolean):void {
 			if(active) {
+                myMp4Player.addEventListener(JplayerEvent.DEBUG_MSG, jPlayerFlashEvent);
+
 				myMp4Player.addEventListener(JplayerEvent.JPLAYER_ERROR, jPlayerFlashEvent);
 				myMp4Player.addEventListener(JplayerEvent.JPLAYER_PROGRESS, jPlayerFlashEvent);
 				myMp4Player.addEventListener(JplayerEvent.JPLAYER_TIMEUPDATE, jPlayerFlashEvent);
