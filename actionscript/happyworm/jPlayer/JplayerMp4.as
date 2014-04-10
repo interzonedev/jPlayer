@@ -210,7 +210,7 @@ package happyworm.jPlayer {
 			this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "securityErrorHandler."));
 		}
 		private function connectStream():void {
-			this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "connectStream."));
+			this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "connectStream: Start"));
 			var customClient:Object = new Object();
 			customClient.onMetaData = onMetaDataHandler;
 			// customClient.onPlayStatus = onPlayStatusHandler; // According to the forums and my tests, onPlayStatus only works with FMS (Flash Media Server).
@@ -223,6 +223,7 @@ package happyworm.jPlayer {
 			setVolume(myStatus.volume);
 			setTemporaryVolume(0);
 			myStream.play(myStatus.src);
+            this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "connectStream: End"));
 		}
 		public function setFile(src:String):void {
 			if(myStream != null) {
