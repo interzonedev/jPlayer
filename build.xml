@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<project name="jPlayer" default="deploy" basedir="./">
+
+    <property environment="env" />
+
+    <property name="FLEX_HOME" value="${env.FLEX_HOME}" />
+    <property name="APP_ROOT" value="actionscript" />
+
+    <property name="web.deploy.dir" value="${env.PROJECTS_DIR}/radio/www/js/libs/jquery.jplayer-2.3.9" />
+    <property name="swf.output" value="${basedir}/jquery.jplayer/Jplayer.swf" />
+
+    <taskdef resource="flexTasks.tasks" classpath="${env.FLEX_HOME}/ant/lib/flexTasks.jar" />
+
+    <target name="compile">
+        <mxmlc file="${APP_ROOT}/Jplayer.as" output="${swf.output}" keep-generated-actionscript="false" />
+    </target>
+
+    <target name="deploy" description="Copies the compiled swf to the radio web vm" depends="compile">
+        <copy file="${swf.output}" todir="${web.deploy.dir}" overwrite="true" verbose="true" />
+    </target>
+
+</project>
