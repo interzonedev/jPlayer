@@ -10,7 +10,7 @@
     <property name="web.deploy.dir" value="${env.PROJECTS_DIR}/radio/www/js/libs/jquery.jplayer-2.3.9" />
     <property name="swf.output" value="${basedir}/jquery.jplayer/Jplayer.swf" />
 
-    <taskdef resource="flexTasks.tasks" classpath="${env.FLEX_HOME}/ant/lib/flexTasks.jar" />
+    <taskdef resource="flexTasks.tasks" classpath="${FLEX_HOME}/ant/lib/flexTasks.jar" />
 
     <target name="compile">
         <mxmlc file="${APP_ROOT}/Jplayer.as" output="${swf.output}" keep-generated-actionscript="false" />
