@@ -65,14 +65,15 @@ package happyworm.jPlayer {
 			}
 		}
 		private function progressHandler(e:TimerEvent):void {
+            this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "progressHandler: " + e.type));
 			if(myStatus.isLoading) {
 				if(getLoadRatio() == 1) { // Close as can get to a loadComplete event since client.onPlayStatus only works with FMS
-					this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "progressHandler: loadComplete"));
 					myStatus.loaded();
 					progressUpdates(false);
 				}
 			}
 			progressEvent();
+            this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "progressHandler: End"));
 		}
 		private function progressEvent():void {
 			this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "progressEvent: before update"));
@@ -192,6 +193,7 @@ package happyworm.jPlayer {
 					break;
 			}
 			// "NetStream.Seek.Notify" event code is not very useful. It occurs after every seek(t) command issued and does not appear to wait for the media to be ready.
+            this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "netStatusHandler: End"));
 		}
 		private function endedEvent():void {
 			var wasPlaying:Boolean = myStatus.isPlaying;

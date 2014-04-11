@@ -626,7 +626,7 @@ package {
 				}
 
 				if(ExternalInterface.available && !securityIssue) {
-					ExternalInterface.call("console.log", t);
+					//ExternalInterface.call("console.log", t);
 				}
 			}
 		}
