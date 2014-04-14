@@ -257,6 +257,7 @@ package happyworm.jPlayer {
 		}
 		public function setFile(src:String):void {
             this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "setFile: Start - src = " + src));
+            this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "setFile: myStream = " + myStream));
 			if(myStream != null) {
 				myStream.close();
 			}
