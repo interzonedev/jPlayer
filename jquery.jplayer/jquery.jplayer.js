@@ -1374,7 +1374,7 @@
 			}
 			this.element.trigger(event);
 		},
-		jPlayerFlashEvent: function(eventType, status) { // Called from Flash
+		jPlayerFlashEvent: function(eventType, status, msg) { // Called from Flash
 			if(eventType === $.jPlayer.event.ready) {
 				if(!this.internal.ready) {
 					this.internal.ready = true;
@@ -1484,6 +1484,13 @@
 						// The ready event is handled outside the switch statement.
 						// Captured here otherwise 2 ready events would be generated if the ready event handler used setMedia.
 						break;
+                    case "debug_msg":
+                        // TODO - Can't seem to use Logger here.
+                        if (console && console.info) {
+                            //console.info("jPlayer debug event[%s]: \"%s\" - status = %s", JSON.stringify(new Date()), msg, JSON.stringify(status));
+                            console.info("jPlayer debug event[%s]: \"%s\"", JSON.stringify(new Date()), msg);
+                        }
+                        break;
 					default:
 						this._trigger(eventType);
 				}

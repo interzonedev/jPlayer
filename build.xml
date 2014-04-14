@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<project name="jPlayer" default="deploy" basedir="./">
+<project name="jPlayer" default="deployAndCopy" basedir="./">
 
     <property environment="env" />
 
@@ -9,6 +9,7 @@
 
     <property name="web.deploy.dir" value="${env.PROJECTS_DIR}/radio/www/js/libs/jquery.jplayer-2.3.9" />
     <property name="swf.output" value="${basedir}/jquery.jplayer/Jplayer.swf" />
+    <property name="jPlayer.src" value="${basedir}/jquery.jplayer/jquery.jplayer.js" />
 
     <taskdef resource="flexTasks.tasks" classpath="${FLEX_HOME}/ant/lib/flexTasks.jar" />
 
@@ -19,5 +20,11 @@
     <target name="deploy" description="Copies the compiled swf to the radio web vm" depends="compile">
         <copy file="${swf.output}" todir="${web.deploy.dir}" overwrite="true" verbose="true" />
     </target>
+
+    <target name="copy" description="Copies the jPlayer plugin JavaScript to the radio web vm">
+        <copy file="${jPlayer.src}" todir="${web.deploy.dir}" overwrite="true" verbose="true" />
+    </target>
+
+    <target name="deployAndCopy" depends="deploy,copy" />
 
 </project>
