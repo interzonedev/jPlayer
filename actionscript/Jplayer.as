@@ -75,6 +75,7 @@ package {
 
 		private var txLog:TextField;
 		private var debug:Boolean = false; // Set debug to false for release compile!
+        private var logAllToJSConsole:Boolean = false; // Whether or not to log all messages to the JavaScript console.
 		private var localAIRDebug:Boolean = false; // This is autodetermined by AIR app - leave false!
 
 		private var traceOut:TraceOut;
@@ -637,8 +638,8 @@ package {
 					tracer(t);
 				}
 
-				if(ExternalInterface.available && !securityIssue) {
-					//ExternalInterface.call("console.log", t);
+				if(ExternalInterface.available && logAllToJSConsole && !securityIssue) {
+					ExternalInterface.call("console.log", t);
 				}
 			}
 		}
