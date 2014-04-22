@@ -1485,8 +1485,7 @@
 						// Captured here otherwise 2 ready events would be generated if the ready event handler used setMedia.
 						break;
                     case "debug_msg":
-                        //Logger.info("jPlayer debug event[%s]: \"%s\" - status = %s", JSON.stringify(new Date()), msg, JSON.stringify(status));
-                        Logger.info("jPlayer debug event[%s]: \"%s\"", JSON.stringify(new Date()), msg);
+                        Logger.info("jPlayer debug event[%s]: \"%s\" - %s", JSON.stringify(new Date()), msg, JSON.stringify(status));
                         break;
 					default:
 						this._trigger(eventType);
