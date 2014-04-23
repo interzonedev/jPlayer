@@ -2,46 +2,46 @@
 
 <project name="jPlayer" default="copy-all" basedir="./">
 
-    <property environment="env"
-              description="Import shell environment variables which must include $FLEX_HOME and $PROJECTS_DIR" />
+	<property environment="env"
+			  description="Import shell environment variables which must include $FLEX_HOME and $PROJECTS_DIR"/>
 
-    <property name="FLEX_HOME" value="${env.FLEX_HOME}" description="The Flex compiler requires this to be set" />
+	<property name="FLEX_HOME" value="${env.FLEX_HOME}" description="The Flex compiler requires this to be set"/>
 
-    <property name="player.local.dir" value="${basedir}/jquery.jplayer"
-              description="The local directory where the jPlayer source code resides" />
-    <property name="player.radio.dir" value="${env.PROJECTS_DIR}/radio/www/js/libs/jquery.jplayer-2.3.9"
-              description="The radio project source code directory where the jPlayer code resides" />
+	<property name="player.local.dir" value="${basedir}/jquery.jplayer"
+			  description="The local directory where the jPlayer source code resides"/>
+	<property name="player.radio.dir" value="${env.PROJECTS_DIR}/radio/www/js/libs/jquery.jplayer-2.3.9"
+			  description="The radio project source code directory where the jPlayer code resides"/>
 
-    <property name="flex.src.dir" value="${basedir}/actionscript"
-              description="ActionScript source code for the jPlayer" />
-    <property name="flex.output.file" value="${player.local.dir}/Jplayer.swf"
-              description="Flex compiler build products" />
+	<property name="flex.src.dir" value="${basedir}/actionscript"
+			  description="ActionScript source code for the jPlayer"/>
+	<property name="flex.output.file" value="${player.local.dir}/Jplayer.swf"
+			  description="Flex compiler build products"/>
 
-    <property name="jPlayer.src.file" value="${player.local.dir}/jquery.jplayer.js"
-              description="JavaScript source code for the jPlayer" />
+	<property name="jPlayer.src.file" value="${player.local.dir}/jquery.jplayer.js"
+			  description="JavaScript source code for the jPlayer"/>
 
-    <taskdef resource="flexTasks.tasks" classpath="${FLEX_HOME}/ant/lib/flexTasks.jar"
-             description="Import the Flex library to allow use of Flex specific tasks" />
+	<taskdef resource="flexTasks.tasks" classpath="${FLEX_HOME}/ant/lib/flexTasks.jar"
+			 description="Import the Flex library to allow use of Flex specific tasks"/>
 
-    <target name="flex-clean" description="Deletes Flex build products">
-        <delete file="${flex.output.file}" />
-    </target>
+	<target name="flex-clean" description="Deletes Flex build products">
+		<delete file="${flex.output.file}"/>
+	</target>
 
-    <target name="flex-compile" depends="flex-clean" description="Compiles ActionScript files with the Flex compiler">
-        <mxmlc file="${flex.src.dir}/Jplayer.as" output="${flex.output.file}" />
-    </target>
+	<target name="flex-compile" depends="flex-clean" description="Compiles ActionScript files with the Flex compiler">
+		<mxmlc file="${flex.src.dir}/Jplayer.as" output="${flex.output.file}"/>
+	</target>
 
-    <target name="flex-copy" depends="flex-compile"
-            description="Copies the compiled swf to the radio project source directory">
-        <copy file="${flex.output.file}" todir="${player.radio.dir}" overwrite="true" verbose="true" />
-    </target>
+	<target name="flex-copy" depends="flex-compile"
+			description="Copies the compiled swf to the radio project source directory">
+		<copy file="${flex.output.file}" todir="${player.radio.dir}" overwrite="true" verbose="true"/>
+	</target>
 
-    <target name="javascript-copy"
-            description="Copies the jPlayer plugin JavaScript source code to the radio project source directory">
-        <copy file="${jPlayer.src.file}" todir="${player.radio.dir}" overwrite="true" verbose="true" />
-    </target>
+	<target name="javascript-copy"
+			description="Copies the jPlayer plugin JavaScript source code to the radio project source directory">
+		<copy file="${jPlayer.src.file}" todir="${player.radio.dir}" overwrite="true" verbose="true"/>
+	</target>
 
-    <target name="copy-all" depends="flex-copy,javascript-copy"
-            description="Compiles the ActionScript source and copies the compiled swf and JavaScript source to the radio project source directory" />
+	<target name="copy-all" depends="flex-copy,javascript-copy"
+			description="Compiles the ActionScript source and copies the compiled swf and JavaScript source to the radio project source directory"/>
 
 </project>

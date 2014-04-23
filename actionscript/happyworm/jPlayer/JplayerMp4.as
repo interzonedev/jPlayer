@@ -54,19 +54,19 @@ package happyworm.jPlayer {
 			
 			myStatus.volume = volume;
 
-            this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "JplayerMp4 initialized: volume = " + volume));
+			this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "JplayerMp4 initialized: volume = " + volume));
 		}
 		private function progressUpdates(active:Boolean):void {
-            this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "progressUpdates: Start - active = " + active));
+			this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "progressUpdates: Start - active = " + active));
 			if(active) {
 				progressTimer.start();
 			} else {
 				progressTimer.stop();
 			}
-            this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "progressUpdates: End"));
+			this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "progressUpdates: End"));
 		}
 		private function progressHandler(e:TimerEvent):void {
-            this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "progressHandler: Start - type = " + e.type));
+			this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "progressHandler: Start - type = " + e.type));
 			if(myStatus.isLoading) {
 				if(getLoadRatio() == 1) { // Close as can get to a loadComplete event since client.onPlayStatus only works with FMS
 					myStatus.loaded();
@@ -74,38 +74,38 @@ package happyworm.jPlayer {
 				}
 			}
 			progressEvent();
-            this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "progressHandler: End"));
+			this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "progressHandler: End"));
 		}
 		private function progressEvent():void {
 			this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "progressEvent: Start"));
 			updateStatusValues();
 			this.dispatchEvent(new JplayerEvent(JplayerEvent.JPLAYER_PROGRESS, myStatus));
-            this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "progressEvent: End"));
+			this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "progressEvent: End"));
 		}
 		private function timeUpdates(active:Boolean):void {
-            this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "timeUpdates: Start - active = " + active));
+			this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "timeUpdates: Start - active = " + active));
 			if(active) {
 				timeUpdateTimer.start();
 			} else {
 				timeUpdateTimer.stop();
 			}
-            this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "timeUpdates: End"));
+			this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "timeUpdates: End"));
 		}
 		private function timeUpdateHandler(e:TimerEvent):void {
-            //this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "timeUpdateHandler: Start - type = " + e.type));
+			//this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "timeUpdateHandler: Start - type = " + e.type));
 			if(!myStatus.flashIsSeeking){
 				setTimeout(timeUpdateEvent, 100);
 			}
-            //this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "timeUpdateHandler: End"));
+			//this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "timeUpdateHandler: End"));
 		}
 		private function timeUpdateEvent():void {
-            //this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "timeUpdateEvent: Start"));
+			//this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "timeUpdateEvent: Start"));
 			updateStatusValues();
 			this.dispatchEvent(new JplayerEvent(JplayerEvent.JPLAYER_TIMEUPDATE, myStatus));
-            //this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "timeUpdateEvent: End"));
+			//this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "timeUpdateEvent: End"));
 		}
 		private function seeking(active:Boolean):void {
-            this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "seeking: Start - active = " + active));
+			this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "seeking: Start - active = " + active));
 			if(active) {
 				if(!myStatus.isSeeking) {
 					seekingEvent();
@@ -117,10 +117,10 @@ package happyworm.jPlayer {
 				}
 				seekingTimer.stop();
 			}
-            this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "seeking: End"));
+			this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "seeking: End"));
 		}
 		private function seekingHandler(e:TimerEvent):void {
-            this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "seekingHandler: Start - type = " + e.type));
+			this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "seekingHandler: Start - type = " + e.type));
 			if(getSeekTimeRatio() <= getLoadRatio()) {
 				seeking(false);
 				if(myStatus.playOnSeek) {
@@ -134,34 +134,34 @@ package happyworm.jPlayer {
 				seeking(false);
 				pause(0);
 			}
-            this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "seekingHandler: End"));
+			this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "seekingHandler: End"));
 		}
 		private function seekingEvent():void {
-            this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "seekingEvent: Start"));
+			this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "seekingEvent: Start"));
 			myStatus.isSeeking = true;
 			updateStatusValues();
 			this.dispatchEvent(new JplayerEvent(JplayerEvent.JPLAYER_SEEKING, myStatus));
-            this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "seekingEvent: End"));
+			this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "seekingEvent: End"));
 		}
 		private function seekedEvent():void {
-            this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "seekedEvent: Start"));
+			this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "seekedEvent: Start"));
 			myStatus.isSeeking = false;
 			updateStatusValues();
 			this.dispatchEvent(new JplayerEvent(JplayerEvent.JPLAYER_SEEKED, myStatus));
-            this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "seekedEvent: End"));
+			this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "seekedEvent: End"));
 		}
 		private function netStatusHandler(e:NetStatusEvent):void {
-            var code:String = e.info.code;
+			var code:String = e.info.code;
 			this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "netStatusHandler: Start - code = " + code + " - level = " + e.info.level));
 			switch(code) {
 				case "NetConnection.Connect.Success":
-                    this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "netStatusHandler: " + code + " begin"));
+					this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "netStatusHandler: " + code + " begin"));
 					connectStream();
-                    this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "netStatusHandler: " + code + " end"));
+					this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "netStatusHandler: " + code + " end"));
 					break;
 				case "NetStream.Play.Start":
 					// This event code occurs once, when the media is opened. Equiv to loadOpen() in mp3 player.
-                    this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "netStatusHandler: " + code + " begin"));
+					this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "netStatusHandler: " + code + " begin"));
 
 					//If we're not playing from the start, temporarily mute the stream; otherwise, while we seek to the starting position, the audio will come through.
 					if(myStatus.pausePosition > 0){
@@ -173,7 +173,7 @@ package happyworm.jPlayer {
 					progressUpdates(true);
 					// See onMetaDataHandler() for other condition, since duration is vital.
 
-                    this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "netStatusHandler: " + code + " end"));
+					this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "netStatusHandler: " + code + " end"));
 					break;
 				case "NetStream.Play.Stop":
 					this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "netStatusHandler: " + code + " begin: getDuration() - getCurrentTime() = " + (getDuration() - getCurrentTime())));
@@ -182,30 +182,30 @@ package happyworm.jPlayer {
 					if(Math.abs(getDuration() - getCurrentTime()) < 1000) { // Using 1000ms to be extra safe, testing found that for M4A files, playHead(99.9) caused a stuck state due to firing with up to 186ms left to play.
 						endedEvent();
 					}
-                    this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "netStatusHandler: " + code + " end"));
+					this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "netStatusHandler: " + code + " end"));
 					break;
 				case "NetStream.Seek.InvalidTime":
-                    this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "netStatusHandler: " + code + " begin"));
+					this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "netStatusHandler: " + code + " begin"));
 					// Used for capturing invalid set times and clicks on the end of the progress bar.
 					endedEvent();
-                    this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "netStatusHandler: " + code + " end"));
+					this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "netStatusHandler: " + code + " end"));
 					break;
 				case "NetStream.Play.StreamNotFound":
-                    this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "netStatusHandler: " + code + " begin"));
+					this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "netStatusHandler: " + code + " begin"));
 					myStatus.error(); // Resets status except the src, and it sets srcError property.
 					this.dispatchEvent(new JplayerEvent(JplayerEvent.JPLAYER_ERROR, myStatus));
-                    this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "netStatusHandler: " + code + " end"));
+					this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "netStatusHandler: " + code + " end"));
 					break;
 				case "NetStream.SeekStart.Notify":
-                    this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "netStatusHandler: " + code + " begin"));
+					this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "netStatusHandler: " + code + " begin"));
 					myStatus.flashIsSeeking = true;
-                    this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "netStatusHandler: " + code + " end"));
+					this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "netStatusHandler: " + code + " end"));
 					break;
 				case "NetStream.Seek.Notify":
 					// A typical seek call involves 1) pausing the stream, 2) seeking, then 3) waiting for Flash to finish seeking. We're at step 3 now.
 					// However, step 3 can be triggered when someone hits pause then seeks around. So, we need to keep track of that case.
 					// myStatus.playAfterFlashIsSeeking is the flag that distinguishes this use case.
-                    this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "netStatusHandler: " + code + " begin"));
+					this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "netStatusHandler: " + code + " begin"));
 					if(myStatus.playAfterFlashIsSeeking){
 						myStatus.playAfterFlashIsSeeking = false; // Unset the flag.
 						myStatus.isPlaying = true; // Set immediately before playing. Could affects events.
@@ -215,14 +215,14 @@ package happyworm.jPlayer {
 						this.dispatchEvent(new JplayerEvent(JplayerEvent.JPLAYER_PLAY, myStatus)); // Note that we're playing the stream again.
 					}
 					myStatus.flashIsSeeking = false; // Note that Flash is no longer seeking.
-                    this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "netStatusHandler: " + code + " end"));
+					this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "netStatusHandler: " + code + " end"));
 					break;
 			}
 			// "NetStream.Seek.Notify" event code is not very useful. It occurs after every seek(t) command issued and does not appear to wait for the media to be ready.
-            this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "netStatusHandler: End"));
+			this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "netStatusHandler: End"));
 		}
 		private function endedEvent():void {
-            this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "endedEvent: Start"));
+			this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "endedEvent: Start"));
 			var wasPlaying:Boolean = myStatus.isPlaying;
 			myStatus.flashIsSeeking = false;
 			// This is (theoretically) causing the double-play and LifeHacker bug.
@@ -234,7 +234,7 @@ package happyworm.jPlayer {
 			if(wasPlaying) {
 				this.dispatchEvent(new JplayerEvent(JplayerEvent.JPLAYER_ENDED, myStatus));
 			}
-            this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "endedEvent: End"));
+			this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "endedEvent: End"));
 		}
 		private function securityErrorHandler(event:SecurityErrorEvent):void {
 			this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "securityErrorHandler."));
@@ -253,11 +253,11 @@ package happyworm.jPlayer {
 			setVolume(myStatus.volume);
 			setTemporaryVolume(0);
 			myStream.play(myStatus.src);
-            this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "connectStream: End"));
+			this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "connectStream: End"));
 		}
 		public function setFile(src:String):void {
-            this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "setFile: Start - src = " + src));
-            this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "setFile: myStream = " + myStream));
+			this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "setFile: Start - src = " + src));
+			this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "setFile: myStream = " + myStream));
 			if(myStream != null) {
 				myStream.close();
 			}
@@ -269,28 +269,28 @@ package happyworm.jPlayer {
 			myStatus.src = src;
 			myStatus.srcSet = true;
 			timeUpdateEvent();
-            this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "setFile: End"));
+			this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "setFile: End"));
 		}
 		public function clearFile():void {
-            this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "clearFile: Start"));
+			this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "clearFile: Start"));
 			setFile("");
 			myStatus.srcSet = false;
-            this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "clearFile: End"));
+			this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "clearFile: End"));
 		}
 		public function load():Boolean {
-            this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "load: Start"));
+			this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "load: Start"));
 			if(myStatus.loadRequired()) {
 				myStatus.startingDownload();
 				myConnection.connect(null);
-                this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "load: End"));
+				this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "load: End"));
 				return true;
 			} else {
-                this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "load: End"));
+				this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "load: End"));
 				return false;
 			}
 		}
 		public function play(time:Number = NaN):Boolean {
-            this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "play: Start - time = " + time));
+			this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "play: Start - time = " + time));
 			var wasPlaying:Boolean = myStatus.isPlaying;
 			
 			if(!isNaN(time) && myStatus.srcSet) {
@@ -303,11 +303,11 @@ package happyworm.jPlayer {
 
 			if(myStatus.isStartingDownload) {
 				myStatus.playOnLoad = true; // Raise flag, captured in onMetaDataHandler()
-                this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "play: End"));
+				this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "play: End"));
 				return true;
 			} else if(myStatus.loadRequired()) {
 				myStatus.playOnLoad = true; // Raise flag, captured in onMetaDataHandler()
-                this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "play: End"));
+				this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "play: End"));
 				return load();
 			} else if((myStatus.isLoading || myStatus.isLoaded) && !myStatus.isPlaying) {
 				if(myStatus.metaDataReady && myStatus.pausePosition > myStatus.duration) { // The time is invalid, ie., past the end.
@@ -345,24 +345,24 @@ package happyworm.jPlayer {
 						}
 					}
 				}
-                this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "play: End"));
+				this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "play: End"));
 				return true;
 			} else {
-                this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "play: End"));
+				this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "play: End"));
 				return false;
 			}
 		}
 
 		public function seekToPausePositionAndPlay():void {
-            this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "seekToPausePositionAndPlay: Start"));
+			this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "seekToPausePositionAndPlay: Start"));
 			setTemporaryVolume(0);
 			myStatus.playAfterFlashIsSeeking = true; // Note that once flash is done seeking, we should resume/play the stream.
 			myStream.seek(myStatus.pausePosition/1000); // Seek to the pause position.
-            this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "seekToPausePositionAndPlay: End"));
+			this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "seekToPausePositionAndPlay: End"));
 		}
 
 		public function pause(time:Number = NaN):Boolean {
-            this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "pause: Start - time = " + time));
+			this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "pause: Start - time = " + time));
 			myStatus.playOnLoad = false; // Reset flag in case load/play issued immediately before this command, ie., before onMetadata() event.
 			myStatus.playOnSeek = false; // Reset flag in case play(time) issued before the command and is still seeking to time set.
 
@@ -397,14 +397,14 @@ package happyworm.jPlayer {
 			}
 
 			if(myStatus.isStartingDownload) {
-                this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "pause: End"));
+				this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "pause: End"));
 				return true;
 			} else if(myStatus.loadRequired()) {
 				if(time > 0) { // We do not want the stop() command, which does pause(0), causing a load operation.
-                    this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "pause: End"));
+					this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "pause: End"));
 					return load();
 				} else {
-                    this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "pause: End"));
+					this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "pause: End"));
 					return true; // Technically the pause(0) succeeded. ie., It did nothing, since nothing was required.
 				}
 			} else if(myStatus.isLoading || myStatus.isLoaded) {
@@ -427,21 +427,21 @@ package happyworm.jPlayer {
 				if(wasPlaying || !isNaN(time) && !alreadyPausedAtTime) {
 					timeUpdateEvent();
 				}
-                this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "pause: End"));
+				this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "pause: End"));
 				return true;
 			} else {
-                this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "pause: End"));
+				this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "pause: End"));
 				return false;
 			}
 		}
 		public function playHead(percent:Number):Boolean {
-            this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "playHead: Start - percent = " + percent));
+			this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "playHead: Start - percent = " + percent));
 			var time:Number = percent * getDuration() * getLoadRatio() / 100;
 			if(myStatus.isPlaying || myStatus.playOnLoad || myStatus.playOnSeek) {
-                this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "playHead: End"));
+				this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "playHead: End"));
 				return play(time);
 			} else {
-                this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "playHead: End"));
+				this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "playHead: End"));
 				return pause(time);
 			}
 		}
@@ -508,7 +508,7 @@ package happyworm.jPlayer {
 			}
 		}
 		public function onMetaDataHandler(info:Object):void { // Used in connectStream() in myStream.client object.
-            this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "onMetaDataHandler: Start - " + info.duration + " | " + info.width + "x" + info.height));
+			this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "onMetaDataHandler: Start - " + info.duration + " | " + info.width + "x" + info.height));
 			// This event occurs when jumping to the start of static files! ie., seek(0) will cause this event to occur.
 			if(!myStatus.metaDataReady) {
 				myStatus.metaDataReady = true; // Set flag so that this event only effects jPlayer the 1st time.
@@ -539,7 +539,7 @@ package happyworm.jPlayer {
 			} else {
 				this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "onMetaDataHandler: Already read (NO EFFECT)"));
 			}
-            this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "onMetaDataHandler: End"));
+			this.dispatchEvent(new JplayerEvent(JplayerEvent.DEBUG_MSG, myStatus, "onMetaDataHandler: End"));
 		}
 	}
 }

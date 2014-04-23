@@ -75,7 +75,7 @@ package {
 
 		private var txLog:TextField;
 		private var debug:Boolean = false; // Set debug to false for release compile!
-        private var logAllToJSConsole:Boolean = false; // Whether or not to log all messages to the JavaScript console.
+		private var logAllToJSConsole:Boolean = false; // Whether or not to log all messages to the JavaScript console.
 		private var localAIRDebug:Boolean = false; // This is autodetermined by AIR app - leave false!
 
 		private var traceOut:TraceOut;
@@ -262,9 +262,9 @@ package {
 		// switchType() here
 		private function listenToMp3(active:Boolean):void {
 			if(active) {
-                if (debug) {
-                    myMp3Player.addEventListener(JplayerEvent.DEBUG_MSG, jPlayerFlashEvent);
-                }
+				if (debug) {
+					myMp3Player.addEventListener(JplayerEvent.DEBUG_MSG, jPlayerFlashEvent);
+				}
 
 				myMp3Player.addEventListener(JplayerEvent.JPLAYER_ERROR, jPlayerFlashEvent);
 				myMp3Player.addEventListener(JplayerEvent.JPLAYER_PROGRESS, jPlayerFlashEvent);
@@ -284,9 +284,9 @@ package {
 				myMp3Player.addEventListener(JplayerEvent.JPLAYER_CANPLAY, jPlayerFlashEvent); // only MP3 atm
 				myMp3Player.addEventListener(JplayerEvent.JPLAYER_CANPLAYTHROUGH, jPlayerFlashEvent); // only MP3 atm
 			} else {
-                if (debug) {
-                    myMp3Player.removeEventListener(JplayerEvent.DEBUG_MSG, jPlayerFlashEvent);
-                }
+				if (debug) {
+					myMp3Player.removeEventListener(JplayerEvent.DEBUG_MSG, jPlayerFlashEvent);
+				}
 
 				myMp3Player.removeEventListener(JplayerEvent.JPLAYER_ERROR, jPlayerFlashEvent);
 				myMp3Player.removeEventListener(JplayerEvent.JPLAYER_PROGRESS, jPlayerFlashEvent);
@@ -309,9 +309,9 @@ package {
 		}
 		private function listenToMp4(active:Boolean):void {
 			if(active) {
-                if (debug) {
-                    myMp4Player.addEventListener(JplayerEvent.DEBUG_MSG, jPlayerFlashEvent);
-                }
+				if (debug) {
+					myMp4Player.addEventListener(JplayerEvent.DEBUG_MSG, jPlayerFlashEvent);
+				}
 
 				myMp4Player.addEventListener(JplayerEvent.JPLAYER_ERROR, jPlayerFlashEvent);
 				myMp4Player.addEventListener(JplayerEvent.JPLAYER_PROGRESS, jPlayerFlashEvent);
@@ -327,9 +327,9 @@ package {
 
 				myMp4Player.addEventListener(JplayerEvent.JPLAYER_LOADEDMETADATA, jPlayerMetaDataHandler); // Note the unique handler
 			} else {
-                if (debug) {
-                    myMp4Player.removeEventListener(JplayerEvent.DEBUG_MSG, jPlayerFlashEvent);
-                }
+				if (debug) {
+					myMp4Player.removeEventListener(JplayerEvent.DEBUG_MSG, jPlayerFlashEvent);
+				}
 
 				myMp4Player.removeEventListener(JplayerEvent.JPLAYER_ERROR, jPlayerFlashEvent);
 				myMp4Player.removeEventListener(JplayerEvent.JPLAYER_PROGRESS, jPlayerFlashEvent);
@@ -349,9 +349,9 @@ package {
 
 		private function listenToRtmp(active:Boolean):void {
 			if(active) {
-                if (debug) {
-                    myRtmpPlayer.addEventListener(JplayerEvent.DEBUG_MSG, jPlayerFlashEvent);
-                }
+				if (debug) {
+					myRtmpPlayer.addEventListener(JplayerEvent.DEBUG_MSG, jPlayerFlashEvent);
+				}
 
 				myRtmpPlayer.addEventListener(JplayerEvent.JPLAYER_ERROR, jPlayerFlashEvent);
 				myRtmpPlayer.addEventListener(JplayerEvent.JPLAYER_PROGRESS, jPlayerFlashEvent);
@@ -369,9 +369,9 @@ package {
 
 				myRtmpPlayer.addEventListener(JplayerEvent.JPLAYER_LOADEDMETADATA, jPlayerMetaDataHandler); // Note the unique handler
 			} else {
-                if (debug) {
-                    myRtmpPlayer.removeEventListener(JplayerEvent.DEBUG_MSG, jPlayerFlashEvent);
-                }
+				if (debug) {
+					myRtmpPlayer.removeEventListener(JplayerEvent.DEBUG_MSG, jPlayerFlashEvent);
+				}
 
 				myRtmpPlayer.removeEventListener(JplayerEvent.JPLAYER_ERROR, jPlayerFlashEvent);
 				myRtmpPlayer.removeEventListener(JplayerEvent.JPLAYER_PROGRESS, jPlayerFlashEvent);
