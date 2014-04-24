@@ -775,7 +775,7 @@
 
 			this.options.volume = this._limitValue(this.options.volume, 0, 1); // Limit volume value's bounds.
 
-      this.useSourceTag = this.options.useSourceTag;
+			this.useSourceTag = this.options.useSourceTag;
 
 			// Create the formats array, with prority based on the order of the supplied formats string
 			$.each(this.options.supplied.toLowerCase().split(","), function(index1, value1) {
@@ -1374,7 +1374,7 @@
 			}
 			this.element.trigger(event);
 		},
-		jPlayerFlashEvent: function(eventType, status) { // Called from Flash
+		jPlayerFlashEvent: function(eventType, status, msg) { // Called from Flash
 			if(eventType === $.jPlayer.event.ready) {
 				if(!this.internal.ready) {
 					this.internal.ready = true;
@@ -1483,6 +1483,9 @@
 					case $.jPlayer.event.ready:
 						// The ready event is handled outside the switch statement.
 						// Captured here otherwise 2 ready events would be generated if the ready event handler used setMedia.
+						break;
+					case "debug_msg":
+						Logger.info("jPlayer debug event[%s]: \"%s\" - %s", JSON.stringify(new Date()), msg, JSON.stringify(status));
 						break;
 					default:
 						this._trigger(eventType);
@@ -1765,8 +1768,8 @@
 			}
 		},
 
-    /*
-    we don't support this.
+	/*
+	we don't support this.
 
 		playHead: function(p) {
 			p = this._limitValue(p, 0, 100);
@@ -1985,8 +1988,8 @@
 		playBar: function() { // Handles clicks on the playBar
 			// The seekBar handles this event as the event propagates up the DOM.
 		},
-    /*
-    we don't support this.
+	/*
+	we don't support this.
 		repeat: function() { // Handle clicks on the repeat button
 			this._loop(true);
 		},
@@ -2361,16 +2364,16 @@
 				$media.append(track);
 			});
 
-      //set the type from the format.
-      var format = this.format[this.status.formatType];
-      if(this.useSourceTag && format && format.codec){
-        var source = document.createElement('source');
-        source.setAttribute("src",this.status.src);
-        source.setAttribute("type", format.codec.replace(/\"/g, ""));
-        $media.append(source);
-      }else{
-			this.htmlElement.media.src = this.status.src;
-      }
+			//set the type from the format.
+			var format = this.format[this.status.formatType];
+			if (this.useSourceTag && format && format.codec) {
+				var source = document.createElement('source');
+				source.setAttribute("src", this.status.src);
+				source.setAttribute("type", format.codec.replace(/\"/g, ""));
+				$media.append(source);
+			} else {
+				this.htmlElement.media.src = this.status.src;
+			}
 
 			if(this.options.preload !== 'none') {
 				this._html_load(); // See function for comments
@@ -2412,11 +2415,11 @@
 		},
 		_html_clearMedia: function() {
 			if(this.htmlElement.media) {
-        if (this.useSourceTag) {
-          $(this.htmlElement.media).empty();
-        } else {
-				this.htmlElement.media.src = "about:blank";
-        }
+				if (this.useSourceTag) {
+					$(this.htmlElement.media).empty();
+				} else {
+					this.htmlElement.media.src = "about:blank";
+				}
 				// The following load() is only required for Firefox 3.6 (PowerMacs).
 				// Recent HTMl5 browsers only require the src change. Due to changes in W3C spec and load() effect.
 				this.htmlElement.media.load(); // Stops an old, "in progress" download from continuing the download. Triggers the loadstart, error and emptied events, due to the empty src. Also an abort event if a download was in progress.
